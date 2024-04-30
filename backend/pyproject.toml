@@ -16,6 +16,10 @@ langchain-core = "^0.1.45"
 loguru = "^0.7.2"
 python-dotenv = "^1.0.1"
 bs4 = "^0.0.2"
+sqlalchemy = "^2.0.29"
+psycopg2 = "^2.9.9"
+passlib = "^1.7.4"
+bcrypt = "^4.1.2"
 
 
 [build-system]
