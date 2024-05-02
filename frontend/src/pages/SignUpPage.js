@@ -1,35 +1,37 @@
 import React, {useState} from 'react';
-import {Link} from "react-router-dom";
+import {useNavigate} from "react-router-dom";
 
 const SignUpPage = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
-    // const navigate = useNavigate();
+    const navigate = useNavigate();
 
 
-    // -------------- 백엔드 연결 시 쓸 코드입니다 ~~ ----------------
-    // const handleSignUp = async () => {
-    //     try {
-    //         const response = await fetch('/api/signup', {
-    //             method: 'POST',
-    //             headers: {
-    //                 'Content-Type': 'application/json',
-    //             },
-    //             body: JSON.stringify({email, password}),
-    //         });
-    //
-    //         if (response.ok) {
-    //             // 회원가입 성공 했을 때 로그인 화면으로 넘어가기
-    //             navigate('/Login');
-    //         } else{
-    //             // 이건 실패시
-    //             alert('회원가입에 실패했습니다.');
-    //         }
-    //     } catch (error) {
-    //         console.error('회원가입 중 에러 발생:', error);
-    //     }
-    // }
+    const handleSignUp = async () => {
+        try {
+            if (password !== confirmPassword) {
+                alert('비밀번호가 일치하지 않습니다.');
+                return;
+            }
+
+            const response = await fetch('http://dev.cemi.re.kr:8888/register', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ email, password }),
+            });
+
+            if (response.status === 200) {
+                navigate('/');
+            }
+        } catch (error) {
+            console.error('회원가입 중 에러 발생:', error);
+            alert('회원가입 중 에러가 발생했습니다.');
+        }
+    };
+
 
 
     return (
@@ -76,21 +78,12 @@ const SignUpPage = () => {
                     />
                 </div>
             </div>
-            <Link
-                to="/"
-                type="submit"
+            <button
+                onClick={handleSignUp}
                 className="bg-blue-500 hover:bg-blue-700 text-white text-center font-bold py-3 px-4 w-96 rounded focus:outline-none focus:shadow-outline"
             >
                 회원가입
-            </Link>
-
-            {/* --------- 나중에 연결 하면 위에 코드 이 아래로 바꾸면 됩니다. ---------------*/}
-            {/*<button*/}
-            {/*    onClick={handleSignUp}*/}
-            {/*    className="bg-blue-500 hover:bg-blue-700 text-white text-center font-bold py-3 px-4 w-96 rounded focus:outline-none focus:shadow-outline"*/}
-            {/*>*/}
-            {/*    회원가입*/}
-            {/*</button>*/}
+            </button>
         </div>
 
     )

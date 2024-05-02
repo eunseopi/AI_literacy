@@ -6,23 +6,30 @@ function LoginPage() {
     const [password, setPassword] = useState('');
     const navigate = useNavigate();
 
-    const handleLogin = (e) => {
-        e.preventDefault();
+    const handleLogin = async () => {
+        try {
+            const response = await fetch('http://dev.cemi.re.kr:8888/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ email, password }),
+            });
 
-        const validEmail = 'test@test.com';
-        const validPassword = '1234';
-
-        if (email === validEmail && password === validPassword) {
-            navigate('/Home');
-        } else {
-            alert('이메일 또는 비밀번호가 틀렸습니다.');
+            if (response.ok) {
+                navigate('/Home');
+            } else {
+                alert('로그인에 실패했습니다.');
+            }
+        } catch (error) {
+            console.error('로그인 중 에러 발생:', error);
         }
     };
 
     return (
         <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
             <h1 className="text-3xl font-bold mb-8 text-rose-400 font-caveat">Fariy</h1>
-            <form onSubmit={handleLogin} className="w-full max-w-sm">
+            <form onSubmit={(e) => e.preventDefault()} className="w-full max-w-sm">
                 <div className="mb-4">
                     <input
                         type="email"
@@ -44,7 +51,7 @@ function LoginPage() {
                     />
                 </div>
                 <button
-                    type="submit"
+                    onClick={handleLogin}
                     className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-3 px-4 w-full rounded focus:outline-none focus:shadow-outline"
                 >
                     로그인
