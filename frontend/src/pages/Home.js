@@ -1,8 +1,10 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { BsHouse, BsHeart, BsPerson } from 'react-icons/bs';
 import { FaCrown } from 'react-icons/fa';
 import '../styles/home.css';
+import Footer from "../components/Footer";
+
+
 
 function Home() {
     return (
@@ -47,17 +49,7 @@ function Home() {
                     </div>
                 </div>
             </div>
-            <div className="bg-white p-3 shadow-lg flex justify-around fixed bottom-0 left-0 right-0">
-                <button className="p-3 rounded-full hover:bg-gray-100">
-                    <BsHouse size={24} />
-                </button>
-                <button className="p-3 rounded-full hover:bg-gray-100">
-                    <BsHeart size={24} />
-                </button>
-                <button className="p-3 rounded-full hover:bg-gray-100">
-                    <BsPerson size={24} />
-                </button>
-            </div>
+            <Footer/>
         </div>
     );
 }
