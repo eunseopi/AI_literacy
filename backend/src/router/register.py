@@ -12,14 +12,25 @@ def create_user(user: models.UserCreate, db: Session = Depends(get_db))-> models
     """_summary_
 
     Args:
-        method post
-        user{ "email": str , "password": str }
+        method post\n
+        { 
+            "email": str ,
+            "password": str ,
+            "profile_image_url": str
+        }
+        이미지url은 선택사항이고 로컬에서 사진 업로드하는 건 아직.. 안됨... 웹 url만 가능
     Raises:
         HTTPException: _description_
 
     Returns:
-        models.User 
-        { "id": int, "email": str, "is_active": bool, "created_at": str}
+        models.User
+         
+        { 
+            "id": int, 
+            "email": str,
+            "is_active": bool,
+            "created_at": str
+        }
     """
     db_user = crud.get_user_by_email(db, user.email)
     if db_user:

@@ -20,7 +20,8 @@ KST = timezone(timedelta(hours=9))
     
 class UserBase(BaseModel):
     email: str
-
+    #! 추후 로컬에서 이미지를 받아서 저장할 수 있도록 수정
+    profile_image_url: str | None = None
 
 class UserCreate(UserBase):
     password: str

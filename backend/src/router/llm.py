@@ -12,12 +12,20 @@ import uvicorn
 from dotenv import load_dotenv
 from langchain.tools import tool
 from langchain import hub
-from fastapi import FastAPI,APIRouter,Depends,HTTPException
+from fastapi import FastAPI,APIRouter,Depends,HTTPException,BackgroundTasks
 from src.models import models
 from src.database import crud
 from src.database.conn import get_db
 from src.database import db_models
 from sqlalchemy.orm import Session
+
+from src.components import scheduler
+from datetime import datetime,timedelta,timezone
+
+scheduler
+
+# test
+    
 
 # 네이버 뉴스기사 주소
 
@@ -27,6 +35,7 @@ from sqlalchemy.orm import Session
     3. 사용자의 입력을 gpt input에 넣고 gpt가 요약한 결과와 비교
     4. 점수나 결과를 반환
 """
+KST = timezone(timedelta(hours=9))
 
 
 # main 배포시 사용
@@ -99,31 +108,58 @@ llm_router = APIRouter()
 
 
 @llm_router.post("/literacy")
-async def literacy_test(doc_thema:str,user_input:str,user_email:str,db: Session = Depends(get_db))->dict:
+async def literacy_test(user_input:str,user_email:str,db: Session = Depends(get_db))->dict:
     """_summary_
 
-    Args:
+    input:
+    
         {
-            "doc_thema" : str
-            "user_input" : str 
-            "user_email" : str # 사용자의 이메일
+            # 사용자가 요약한 문장
+            "user_input" : str,
+            # 사용자의 이메일
+            "user_email" : str 
         }
 
     Returns:
-        dict: _description_
+    
+        {
+            "llm_summary": str,
+            "user_summary": str,
+            "score": int, # 1~10
+            "comment": str,
+            "docurl": url ,
+        }
     """
     
+    content = crud.get_contents(db)[0].content
+    
+    
+    if content is None:
+        # raise HTTPException(status_code=400,detail="서버 오류 관리자에게 문의.")
+        return {"message":"서버에서 데이터를 가져오는 중입니다. 새로고침을 해주세요!"}
+    print("\nthis is the llm part !!!!!!!!!!!!!!!!!!!!!!!!!!!\n",content)
+
+    played_dates = crud.get_scores_by_user(db, user_email)
+    
+    for i in range(len(played_dates)):
+        played_dates[i] = played_dates[i].played_date
+    played_dates.sort(key=lambda date: datetime.strptime(date, "%Y-%m-%d"))
+    
+    if datetime.now(KST).date().strftime("%Y-%m-%d") == played_dates[-1]:
+        raise HTTPException(status_code=400,detail="하루에 한번만 가능합니다.")
+        
     
     #! 사용자가 선택한 웹 문서 주소를 바탕으로 크롤링 
     #! 다음은 문서 예시
-    docs = "나의 이름은 윤성훈이다. 나는 어렸을 때부터 게임하는 것을 좋아했다. 그러나 내 꿈은 프로그래머이다."
-    result = review_chain.invoke({"docs":docs,"input":"윤성훈은 게임하는 것을 좋아했다.","form":form})
+    
+    # docs = "나의 이름은 윤성훈이다. 나는 어렸을 때부터 게임하는 것을 좋아했다. 그러나 내 꿈은 프로그래머이다."
+    result = review_chain.invoke({"docs":content,"input":user_input,"form":form})
     # print("this is the llm's answer",result)   
     
     result = eval(result)
     print("this is the result: ",result)
-    #! docurl 추가
-    result["docurl"] = "fakeurl.com"
+    #! 해당 글에 대한 docurl 수정필요 지금은 리스트 페이지로 이동
+    result["docurl"] = "https://news.sbs.co.kr/news/newsPlusList.do?themeId=10000000134&plink=SITEMAP&cooper=SBSNEWS"
     
     # print("LLM 요약: ",result["원문 요약"])
     # print("사용자의 요약: ",result["사용자의 요약"])
@@ -134,6 +170,7 @@ async def literacy_test(doc_thema:str,user_input:str,user_email:str,db: Session 
     #! 결과를 DB에 저장하는 코드 추가
     try:
         score = crud.save_score(db, models.ScoreCreate(**result),user_email)
+        crud.increase_continuous_days(db, user_email)
     except Exception as e:
         print(e)
         raise HTTPException(status_code=400,detail="하루에 한번 가능합니다.")
@@ -144,6 +181,18 @@ async def literacy_test(doc_thema:str,user_input:str,user_email:str,db: Session 
     # 요약 문 입력(user_input) -> 원문에 대한 llm 요약 결과 -> 두개 요약본을 가지고 평가
     # 원문과 사용자 요약을 같이 받나?
     
+
+@llm_router.get("/get_contents")
+async def get_contents(db: Session = Depends(get_db)):
+    """_summary_
     
+    Returns:
+        
+        {
+            "content": str
+        }
+    """
+    content = crud.get_contents(db)
+    return {"content":content[0].content}
     
 

@@ -14,6 +14,7 @@ from src.database.conn import engine, SessionLocal
 from src.database import db_models
 from src.models import models
 
+
 # 네이버 뉴스기사 주소
 
 
