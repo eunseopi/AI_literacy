@@ -6,7 +6,7 @@ services:
     ports:
       - "8888:8888"
     depends_on:
-      - postgres
+      - db
     environment:
       DB_NAME: literacy-main
       DB_USER: postgres
@@ -15,10 +15,10 @@ services:
       TZ: "Asia/Seoul"
     restart: unless-stopped
 
-  postgres-:
-    image: postgres
+  db:
+    image: postgres:latest
     ports:
-      - "5433:5433"
+      - "5433:5432"
     restart: unless-stopped
     environment:
       POSTGRES_USER: postgres
