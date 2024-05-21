@@ -110,6 +110,7 @@ def increase_continuous_days(db: Session, user_email: str):
     db.refresh(user)
     return user.continuous_day
 
+
 def reset_continuous_days(db: Session, user_email: str):
     user_id = get_user_id_by_email(db, user_email)
     user = db.query(db_models.User).filter(db_models.User.id == user_id).first()
@@ -121,7 +122,12 @@ def reset_continuous_days(db: Session, user_email: str):
         played_dates[i] = played_dates[i].played_date
     played_dates.sort(key=lambda date: datetime.strptime(date, "%Y-%m-%d"))
     
+    if len(played_dates) == 0 :
+        user.continuous_day = 0
+        return user.continuous_day
+    
     recent_played_day = datetime.strptime(played_dates[-1], "%Y-%m-%d").date()
+
     
     print("asdasdasdasd",today,recent_played_day)
     

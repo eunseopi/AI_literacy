@@ -37,9 +37,9 @@ def login(user:models.UserCreate, db: Session = Depends(get_db)) -> models.User:
         }
     """
     db_user = crud.authenticate_user(db, user.email, user.password)
-    crud.reset_continuous_days(db, user.email)
     if not db_user:
         raise HTTPException(status_code=400, detail="로그인 정보가 일치하지 않습니다.")
+    crud.reset_continuous_days(db, user.email)
     return db_user
 
 
