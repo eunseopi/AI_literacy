@@ -5,6 +5,7 @@ import SummaryPage from "./components/SummaryPage";
 import LoginPage from "./pages/LoginPage";
 import SignUpPage from "./pages/SignUpPage";
 import Profile from "./pages/Profile";
+import Summaries from "./pages/Summaries";
 
 function App() {
     return (
@@ -15,6 +16,7 @@ function App() {
                 <Route path="/Home" element={<Home />} />
                 <Route path="/summary" element={<SummaryPage />} />
                 <Route path="/profile" element={<Profile />} />
+                <Route path="/summaries" element={<Summaries />} />
             </Routes>
         </Router>
     );

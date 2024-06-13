@@ -1,6 +1,5 @@
-from pydantic import BaseModel,Field
-from datetime import datetime, timezone, timedelta
-
+from pydantic import BaseModel
+from datetime import timezone, timedelta
 
 
 KST = timezone(timedelta(hours=9))
@@ -17,25 +16,28 @@ KST = timezone(timedelta(hours=9))
         scores = relationship("Score", back_populates="user")
 """
 
-    
+
 class UserBase(BaseModel):
     email: str
     #! 추후 로컬에서 이미지를 받아서 저장할 수 있도록 수정
     profile_image_url: str | None = None
+    nick_name: str | None = None
+
 
 class UserCreate(UserBase):
     password: str
 
 
 class User(UserBase):
-    id: int 
+    id: int
     is_active: bool = True
     created_at: str | None = None
-    
+    continuous_day: int | None = None
+
     class Config:
         orm_mode = True
-        
-    
+
+
 """Score model
     class Score(Base):
         __tablename__ = "scores"
@@ -48,7 +50,9 @@ class User(UserBase):
         llm_summary = Column(String)
         docurl = Column(String)
         user = relationship("User", back_populates="scores")
-"""        
+"""
+
+
 class ScoreBase(BaseModel):
     score: int
     comment: str
@@ -63,8 +67,16 @@ class ScoreCreate(ScoreBase):
 
 class Score(ScoreBase):
     user_id: int
-    play_date: str | None = None
-    
+    played_date: str | None = None
 
     class Config:
         orm_mode = True
+
+
+class Token(BaseModel):
+    access_token: str
+    token_type: str = "bearer"
+    
+    
+class TokenPayload(BaseModel):
+    sub: str | None = None

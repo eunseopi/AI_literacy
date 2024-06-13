@@ -3,6 +3,7 @@ import {useNavigate} from "react-router-dom";
 
 const SignUpPage = () => {
     const [email, setEmail] = useState('');
+    const [nickName, setNickName] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const navigate = useNavigate();
@@ -20,7 +21,7 @@ const SignUpPage = () => {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ email, password }),
+                body: JSON.stringify({ email , password, nick_name: nickName }),
             });
 
             if (response.status === 200) {
@@ -50,6 +51,18 @@ const SignUpPage = () => {
                         value={email}
                         onChange={(e) => {
                             setEmail(e.target.value)
+                        }}
+                        className="w-full outline-none"
+                    />
+                </div>
+                <div
+                    className={`flex items-center mb-4 border rounded-md px-3 py-4`}>
+                    <input
+                        type="text"
+                        placeholder="닉네임"
+                        value={nickName}
+                        onChange={(e) => {
+                            setNickName(e.target.value)
                         }}
                         className="w-full outline-none"
                     />

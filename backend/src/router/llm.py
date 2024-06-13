@@ -1,3 +1,6 @@
+import os
+from typing import Annotated
+from datetime import datetime, timedelta, timezone
 from langchain_openai import ChatOpenAI
 from langchain_community.document_loaders import WebBaseLoader
 from langchain.chains.llm import LLMChain
@@ -5,27 +8,34 @@ from langchain.chains.sequential import SimpleSequentialChain
 from langchain.chains.summarize import load_summarize_chain
 from langchain.prompts import PromptTemplate
 from langchain_text_splitters import CharacterTextSplitter
-from langchain.agents import AgentExecutor, create_react_agent, Tool, load_tools,create_tool_calling_agent
+from langchain.agents import (
+    AgentExecutor,
+    create_react_agent,
+    Tool,
+    load_tools,
+    create_tool_calling_agent,
+)
 from langchain_core.output_parsers import StrOutputParser
-import os
+from sqlalchemy.orm import Session
+from sqlalchemy.exc import PendingRollbackError
 import uvicorn
 from dotenv import load_dotenv
 from langchain.tools import tool
 from langchain import hub
-from fastapi import FastAPI,APIRouter,Depends,HTTPException,BackgroundTasks
+from fastapi import FastAPI, APIRouter, Depends, HTTPException, BackgroundTasks
 from src.models import models
 from src.database import crud
 from src.database.conn import get_db
 from src.database import db_models
-from sqlalchemy.orm import Session
-
 from src.components import scheduler
-from datetime import datetime,timedelta,timezone
+from src.security.hash_password import get_current_user
 
-scheduler
 
+
+scheduler.run()
 # test
-    
+
+
 
 # 네이버 뉴스기사 주소
 
@@ -40,7 +50,7 @@ KST = timezone(timedelta(hours=9))
 
 # main 배포시 사용
 env = os.getenv("ENV", "")
-load_dotenv(f'.env{env}')
+load_dotenv(f".env{env}")
 
 OPEN_AI_APIKEY = os.getenv("OPEN_AI_APIKEY")
 
@@ -50,7 +60,7 @@ OPEN_AI_APIKEY = os.getenv("OPEN_AI_APIKEY")
 # loader = WebBaseLoader(url)
 
 # # 뉴스기사의 본문을 Chunk 단위로 쪼갬
-# text_splitter = CharacterTextSplitter(        
+# text_splitter = CharacterTextSplitter(
 #     separator="\n\n",
 #     chunk_size=3000,     # 쪼개는 글자수
 #     chunk_overlap=300,   # 오버랩 글자수
@@ -63,8 +73,9 @@ OPEN_AI_APIKEY = os.getenv("OPEN_AI_APIKEY")
 
 
 # # LLM 객체 생성
-llm = ChatOpenAI(temperature=0, 
-                 model_name='gpt-4-turbo',openai_api_key=OPEN_AI_APIKEY,verbose=True)
+llm = ChatOpenAI(
+    temperature=0, model_name="gpt-4o", openai_api_key=OPEN_AI_APIKEY, verbose=True
+)
 
 form = """{
     "llm_summary": ,
@@ -72,7 +83,6 @@ form = """{
     "score": ,
     "comment": ,
 }"""
-
 
 
 template = """너는 평가 전문가야. 문제를 해결하기 위해 다음 단계를 수행합니다.
@@ -89,13 +99,13 @@ input: {input}
 
 
 """
-prompt_template = PromptTemplate(input_variables=["docs","input","form"], template=template)
+prompt_template = PromptTemplate(
+    input_variables=["docs", "input", "form"], template=template
+)
 
 output_parser = StrOutputParser()
 
 review_chain = prompt_template | llm | output_parser
-
-
 
 
 # result = review_chain.invoke({"docs":"나의 이름은 윤성훈이다. 나는 어렸을 때부터 게임하는 것을 좋아했다. 그러나 내 꿈은 프로그래머이다.","input":"윤성훈의 꿈은 프로그래머이다.","form":form})
@@ -108,20 +118,24 @@ llm_router = APIRouter()
 
 
 @llm_router.post("/literacy")
-async def literacy_test(user_input:str,user_email:str,db: Session = Depends(get_db))->dict:
+async def literacy_test(
+    user_input:dict,current_user: Annotated[models.User, Depends(get_current_user)], db: Session = Depends(get_db)
+) -> dict:
     """_summary_
 
     input:
     
+        body
         {
-            # 사용자가 요약한 문장
             "user_input" : str,
-            # 사용자의 이메일
-            "user_email" : str 
         }
+        
+        헤더에 이런식으로 넣어 주셔야 합니다.
+        
+        headers: {"Authorization" : `Bearer ${token}`}
 
     Returns:
-    
+
         {
             "llm_summary": str,
             "user_summary": str,
@@ -130,37 +144,44 @@ async def literacy_test(user_input:str,user_email:str,db: Session = Depends(get_
             "docurl": url ,
         }
     """
-    
+    user_input = user_input["user_input"]
     content = crud.get_contents(db)[0].content
-    
-    
+
     if content is None:
         # raise HTTPException(status_code=400,detail="서버 오류 관리자에게 문의.")
-        return {"message":"서버에서 데이터를 가져오는 중입니다. 새로고침을 해주세요!"}
-    print("\nthis is the llm part !!!!!!!!!!!!!!!!!!!!!!!!!!!\n",content)
+        return {"message": "서버에서 데이터를 가져오는 중입니다. 새로고침을 해주세요!"}
+    print("\nthis is the llm part !!!!!!!!!!!!!!!!!!!!!!!!!!!\n", content)
 
-    played_dates = crud.get_scores_by_user(db, user_email)
-    
+    played_dates = crud.get_scores_by_user(db, current_user.email)
+
     for i in range(len(played_dates)):
         played_dates[i] = played_dates[i].played_date
     played_dates.sort(key=lambda date: datetime.strptime(date, "%Y-%m-%d"))
+
+
+    #! 테스트가 끝나면 밑 코드 살리기 꼭
+    # if (
+    #     len(played_dates) != 0
+    #     and datetime.now(KST).date().strftime("%Y-%m-%d") == played_dates[-1]
+    # ):
+    #     return {"llm_summary":".","user_summary":".","score":0,"comment":"하루에 한번만 가능합니다.","docurl":"."}
+    #!
     
-    if datetime.now(KST).date().strftime("%Y-%m-%d") == played_dates[-1]:
-        raise HTTPException(status_code=400,detail="하루에 한번만 가능합니다.")
-        
     
-    #! 사용자가 선택한 웹 문서 주소를 바탕으로 크롤링 
+    #! 사용자가 선택한 웹 문서 주소를 바탕으로 크롤링
     #! 다음은 문서 예시
-    
+
     # docs = "나의 이름은 윤성훈이다. 나는 어렸을 때부터 게임하는 것을 좋아했다. 그러나 내 꿈은 프로그래머이다."
-    result = review_chain.invoke({"docs":content,"input":user_input,"form":form})
-    # print("this is the llm's answer",result)   
-    
+    result = await review_chain.ainvoke({"docs": content, "input": user_input, "form": form})
+    # print("this is the llm's answer",result)
+
     result = eval(result)
-    print("this is the result: ",result)
+    print("this is the result: ", result)
     #! 해당 글에 대한 docurl 수정필요 지금은 리스트 페이지로 이동
-    result["docurl"] = "https://news.sbs.co.kr/news/newsPlusList.do?themeId=10000000134&plink=SITEMAP&cooper=SBSNEWS"
-    
+    result["docurl"] = (
+        "https://news.sbs.co.kr/news/newsPlusList.do?themeId=10000000134&plink=SITEMAP&cooper=SBSNEWS"
+    )
+
     # print("LLM 요약: ",result["원문 요약"])
     # print("사용자의 요약: ",result["사용자의 요약"])
     # print("비교 평가: ",result["평가"])
@@ -168,31 +189,48 @@ async def literacy_test(user_input:str,user_email:str,db: Session = Depends(get_
     # print("총평: ",result["총평"])
 
     #! 결과를 DB에 저장하는 코드 추가
-    try:
-        score = crud.save_score(db, models.ScoreCreate(**result),user_email)
-        crud.increase_continuous_days(db, user_email)
-    except Exception as e:
-        print(e)
-        raise HTTPException(status_code=400,detail="하루에 한번 가능합니다.")
+
+        
+    #! 테스트 코드이므로 개발 완료되면 밑 코드 삭제 무조건 !!
+    if len(played_dates)==0:
+        score = crud.save_score(db, models.ScoreCreate(**result), current_user.email)
+        crud.increase_continuous_days(db, current_user.email)    
+    elif datetime.now(KST).date().strftime("%Y-%m-%d") == played_dates[-1]:
+        score = crud.test_save_score(db, models.ScoreCreate(**result), current_user.email)
+    else:
+        score = crud.save_score(db, models.ScoreCreate(**result), current_user.email)
+        crud.increase_continuous_days(db, current_user.email)
+    #! 
     
+    
+    #! 테스트 끝나면 밑 코드 살리기 꼭   
+    # if len(played_dates)==0:
+    #     score = crud.save_score(db, models.ScoreCreate(**result), current_user.email)
+    #     crud.increase_continuous_days(db, current_user.email)
+    #!       
+
     return result
     # overall_chain.run(docs=docs, input=user_input)
-    
+
     # 요약 문 입력(user_input) -> 원문에 대한 llm 요약 결과 -> 두개 요약본을 가지고 평가
     # 원문과 사용자 요약을 같이 받나?
-    
+
 
 @llm_router.get("/get_contents")
 async def get_contents(db: Session = Depends(get_db)):
     """_summary_
-    
+
     Returns:
-        
+
         {
             "content": str
         }
     """
     content = crud.get_contents(db)
-    return {"content":content[0].content}
-    
+    return {"content": content[0].content}
 
+@llm_router.get("/get_contents/{date}")
+async def get_contents_by_date(date:str, db: Session = Depends(get_db)):
+    content = crud.get_content_by_date(db, date)
+    
+    return {"content": content.content}

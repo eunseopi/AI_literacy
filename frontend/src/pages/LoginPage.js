@@ -11,12 +11,17 @@ function LoginPage() {
             const response = await fetch('http://dev.cemi.re.kr:8888/login', {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
+                    'Content-Type': 'application/x-www-form-urlencoded',
                 },
-                body: JSON.stringify({ email, password }),
+                body: new URLSearchParams({
+                    username : email,
+                    password: password,
+                }),
             });
 
             if (response.ok) {
+                const data = await response.json();
+                localStorage.setItem('token', data.access_token);
                 navigate('/Home');
             } else {
                 alert('로그인에 실패했습니다.');

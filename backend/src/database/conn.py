@@ -6,14 +6,13 @@ from dotenv import load_dotenv
 
 
 env = os.getenv("ENV", "")
-load_dotenv(f'.env{env}')
+load_dotenv(f".env{env}")
 DATABASE_URL = os.getenv("DATABASE_URL")
 
 
-engine = create_engine(
-    DATABASE_URL,echo=True
-)
+engine = create_engine(DATABASE_URL, echo=True)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
 
 def get_db():
     db = SessionLocal()
@@ -21,5 +20,6 @@ def get_db():
         yield db
     finally:
         db.close()
-        
+
+
 Base = declarative_base()

@@ -21,5 +21,5 @@ RUN pip install --no-cache-dir --upgrade -r /app/requirements.txt
 RUN apt-get update && apt-get -y install libgl1-mesa-glx
 # RUN apt-get -y install libgl1-mesa-glx
 
-COPY . .
+COPY ../../Downloads/literacyai-backend%204 .
 CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8888"]
