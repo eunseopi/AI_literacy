@@ -11,7 +11,7 @@ function Summaries() {
     useEffect(() => {
         const fetchSummaries = async () => {
             try {
-                const response = await fetch('http://dev.cemi.re.kr:8888/history', {
+                const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/history`, {
                     method: 'GET',
                     headers: {
                         'Authorization': `Bearer ${token}`,

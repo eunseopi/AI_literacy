@@ -8,7 +8,7 @@ function LoginPage() {
 
     const handleLogin = async () => {
         try {
-            const response = await fetch('http://dev.cemi.re.kr:8888/login', {
+            const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/login`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',

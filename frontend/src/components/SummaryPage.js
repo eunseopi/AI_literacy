@@ -17,7 +17,7 @@ const SummaryPage = () => {
     useEffect(() => {
         const generateText = async () => {
             try {
-                const response = await fetch('http://dev.cemi.re.kr:8888/get_contents', {
+                const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/get_contents`, {
                     method: 'GET',
                 });
 
@@ -54,7 +54,7 @@ const SummaryPage = () => {
         const token = localStorage.getItem('token');
 
         try {
-            const response = await fetch('http://dev.cemi.re.kr:8888/literacy', {
+            const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/literacy`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

@@ -16,7 +16,7 @@ function Profile() {
     useEffect(() => {
         const fetchProfile = async () => {
             try {
-                const response = await fetch('http://dev.cemi.re.kr:8888/profile', {
+                const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/profile`, {
                     method: 'GET',
                     headers: {
                         'Authorization': `Bearer ${token}`,
@@ -39,7 +39,7 @@ function Profile() {
 
         const fetchSummaries = async () => {
             try {
-                const response = await fetch('http://dev.cemi.re.kr:8888/history', {
+                const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/history`, {
                     method: 'GET',
                     headers: {
                         'Authorization': `Bearer ${token}`,
@@ -62,7 +62,7 @@ function Profile() {
 
     const handleImageUpload = async () => {
         try {
-            const response = await fetch('http://dev.cemi.re.kr:8888/update_profile_img', {
+            const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/update_profile_img`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`,

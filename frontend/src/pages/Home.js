@@ -17,7 +17,7 @@ function Home() {
         const fetchProfile = async () => {
             try{
                 const token = localStorage.getItem("token");
-                const response = await fetch('http://dev.cemi.re.kr:8888/profile', {
+                const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/profile`, {
                     method: 'GET',
                     headers: {
                         'Authorization': `Bearer ${token}`,
@@ -34,11 +34,10 @@ function Home() {
             }
         }
 
-
         const fetchContinuous = async () => {
             try {
                 const token = localStorage.getItem('token');
-                const response = await fetch('http://dev.cemi.re.kr:8888/continuous_days', {
+                const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/continuous_days`, {
                     method: 'GET',
                     headers: {
                         'Authorization': `Bearer ${token}`,
@@ -58,7 +57,7 @@ function Home() {
         const fetchScore = async () => {
             try {
                 const token = localStorage.getItem('token');
-                const response = await fetch('http://dev.cemi.re.kr:8888/avg_scores', {
+                const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/avg_scores`, {
                     method: 'GET',
                     headers : {
                         'Authorization': `Bearer ${token}`,

@@ -16,7 +16,7 @@ const SignUpPage = () => {
                 return;
             }
 
-            const response = await fetch('http://dev.cemi.re.kr:8888/register', {
+            const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/register`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
