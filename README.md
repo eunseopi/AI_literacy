@@ -16,3 +16,10 @@
 ![CSS](https://img.shields.io/badge/CSS-1572B6?style=flat&logo=CSS3&logoColor=white)
 ![Python](https://img.shields.io/badge/Python-007396?style=flat&logo=Java&logoColor=white)
 ![Docker](https://img.shields.io/badge/Docker-007396?style=flat&logo=Java&logoColor=white)
+
+
+| 메인페이지 | 요약하는 페이지 |
+| ------------ | ------------- |
+| <img width="612" alt="image" src="https://github.com/user-attachments/assets/5ab0d261-f28e-49dd-a3f3-184761a19ab3"> | <img width="612" alt="image" src="https://github.com/user-attachments/assets/5680df75-4cfa-47c7-ae8a-0c194a2b44e2">
+ |
+
