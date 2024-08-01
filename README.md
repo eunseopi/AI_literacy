@@ -20,6 +20,11 @@
 
 | 메인페이지 | 요약하는 페이지 |
 | ------------ | ------------- |
-| <img width="612" alt="image" src="https://github.com/user-attachments/assets/5ab0d261-f28e-49dd-a3f3-184761a19ab3"> | <img width="612" height="400" alt="image" src="https://github.com/user-attachments/assets/5680df75-4cfa-47c7-ae8a-0c194a2b44e2">
- |
+| <img width="612" alt="image" src="https://github.com/user-attachments/assets/5ab0d261-f28e-49dd-a3f3-184761a19ab3"> | <img width="612" alt="image" src="https://github.com/user-attachments/assets/5680df75-4cfa-47c7-ae8a-0c194a2b44e2">|
+
+| 요약결과 | 내 정보 요약글 모음 |
+| ------------ | ------------- |
+| <img width="612" alt="image" src="https://github.com/user-attachments/assets/5f1f9c8f-6edb-4aea-8042-7bd297275fde"> | <img width="612" alt="image" src="https://github.com/user-attachments/assets/c527048d-de0c-4f9b-9cd5-f41599eb0b67">|
+
+
 
